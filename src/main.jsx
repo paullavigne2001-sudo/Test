@@ -41,7 +41,7 @@ function Fighter({fighter,player,enemy,attack,hit,enemyHp,boss}){
  const ref=useRef();
  useFrame(()=>{ref.current?.position.set(fighter.current.x,0,fighter.current.z);ref.current?.rotation.set(0,fighter.current.angle,0)});
  return <group ref={ref}><Stickman color={boss?'#a855f7':'#ef4444'} moving={fighter.current.speed>.01} attack={attack} hit={hit} boss={boss}/>
- {fighter!==player&&<group position={[0,boss?2.75:2.35,.03]}><mesh><planeGeometry args={[boss?1.55:1.25,.09]}/><meshBasicMaterial color="#111827"/></mesh><mesh scale={[Math.max(enemyHp,0)/100,1,1]} position={[-(1-Math.max(enemyHp,0)/100)*(boss?.775:.625),0,.01]}><planeGeometry args={[boss?1.55:1.25,.065]}/><meshBasicMaterial color={boss?'#a855f7':'#ef4444'}/></mesh></group>}</group>
+ {fighter!==player&&<group position={[0,boss?2.75:2.35,.03]}><mesh><planeGeometry args={[boss?1.55:1.25,.09]}/><meshBasicMaterial color="#111827" depthTest={false} depthWrite={false}/></mesh><mesh scale={[Math.max(enemyHp,0)/100,1,1]} position={[-(1-Math.max(enemyHp,0)/100)*(boss?.775:.625),0,.01]}><planeGeometry args={[boss?1.55:1.25,.065]}/><meshBasicMaterial color={boss?'#a855f7':'#ef4444'} depthTest={false} depthWrite={false}/></mesh></group>}</group>
 }
 
 function Game(){
