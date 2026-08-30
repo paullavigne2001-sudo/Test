@@ -85,35 +85,80 @@ function Stickman({ color = '#f8fafc', moving = false, attack = 0, hit = 0, boss
 
   return (
     <group ref={body} scale={scale}>
+      {/* Head — overlaps torso top so the neck has no visible seam */}
       <mesh position={[0, 1.65, 0]} castShadow>
         <sphereGeometry args={[0.32, 20, 20]} />
         <meshStandardMaterial {...matProps} />
       </mesh>
+
+      {/* Torso — slightly wider than before so shoulders/hips sit closer to its surface */}
       <mesh position={[0, 0.95, 0]} castShadow>
-        <cylinderGeometry args={[0.11, 0.14, 1.2, 12]} />
+        <cylinderGeometry args={[0.16, 0.19, 1.2, 14]} />
         <meshStandardMaterial {...matProps} />
       </mesh>
-      <group ref={armL} position={[-0.38, 1.25, 0]}>
+
+      {/* Pelvis band — bridges the torso base into both hips as one continuous shape */}
+      <mesh position={[0, 0.52, 0]} scale={[1.35, 0.6, 1.05]} castShadow>
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshStandardMaterial {...matProps} />
+      </mesh>
+
+      {/* Arms — shoulder ball fills the gap between torso and the arm pivot, hand caps round the tip */}
+      <group ref={armL} position={[-0.28, 1.25, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.12, 14, 14]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
         <mesh position={[0, -0.42, 0]} castShadow>
           <cylinderGeometry args={[0.065, 0.065, 0.85, 10]} />
           <meshStandardMaterial {...matProps} />
         </mesh>
+        <mesh position={[0, -0.85, 0]} castShadow>
+          <sphereGeometry args={[0.075, 12, 12]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
       </group>
-      <group ref={armR} position={[0.38, 1.25, 0]}>
+      <group ref={armR} position={[0.28, 1.25, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.12, 14, 14]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
         <mesh position={[0, -0.42, 0]} castShadow>
           <cylinderGeometry args={[0.065, 0.065, 0.85, 10]} />
           <meshStandardMaterial {...matProps} />
         </mesh>
+        <mesh position={[0, -0.85, 0]} castShadow>
+          <sphereGeometry args={[0.075, 12, 12]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
       </group>
-      <group ref={legL} position={[-0.2, 0.55, 0]}>
+
+      {/* Legs — hip ball fills the gap between pelvis and the leg pivot, foot caps round the tip */}
+      <group ref={legL} position={[-0.16, 0.55, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.14, 14, 14]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
         <mesh position={[0, -0.48, 0]} castShadow>
           <cylinderGeometry args={[0.08, 0.08, 1.1, 10]} />
           <meshStandardMaterial {...matProps} />
         </mesh>
+        <mesh position={[0, -1.03, 0]} scale={[1.15, 0.65, 1.35]} castShadow>
+          <sphereGeometry args={[0.1, 12, 12]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
       </group>
-      <group ref={legR} position={[0.2, 0.55, 0]}>
+      <group ref={legR} position={[0.16, 0.55, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.14, 14, 14]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
         <mesh position={[0, -0.48, 0]} castShadow>
           <cylinderGeometry args={[0.08, 0.08, 1.1, 10]} />
+          <meshStandardMaterial {...matProps} />
+        </mesh>
+        <mesh position={[0, -1.03, 0]} scale={[1.15, 0.65, 1.35]} castShadow>
+          <sphereGeometry args={[0.1, 12, 12]} />
           <meshStandardMaterial {...matProps} />
         </mesh>
       </group>
