@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Canvas, useFrame } from '@react-three/fiber';
+import { ContactShadows, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 import './styles.css';
 
@@ -78,39 +79,42 @@ function Stickman({ color = '#f8fafc', moving = false, attack = 0, hit = 0, boss
   });
 
   const scale = boss ? 1.18 : 1;
+  const emissive = boss ? '#7c3aed' : '#000000';
+  const emissiveIntensity = boss ? 0.55 : 0;
+  const matProps = { color, emissive, emissiveIntensity, roughness: 0.55, metalness: 0.1 };
 
   return (
     <group ref={body} scale={scale}>
-      <mesh position={[0, 1.65, 0]}>
+      <mesh position={[0, 1.65, 0]} castShadow>
         <sphereGeometry args={[0.32, 20, 20]} />
-        <meshStandardMaterial color={color} />
+        <meshStandardMaterial {...matProps} />
       </mesh>
-      <mesh position={[0, 0.95, 0]}>
+      <mesh position={[0, 0.95, 0]} castShadow>
         <cylinderGeometry args={[0.11, 0.14, 1.2, 12]} />
-        <meshStandardMaterial color={color} />
+        <meshStandardMaterial {...matProps} />
       </mesh>
       <group ref={armL} position={[-0.38, 1.25, 0]}>
-        <mesh position={[0, -0.42, 0]}>
+        <mesh position={[0, -0.42, 0]} castShadow>
           <cylinderGeometry args={[0.065, 0.065, 0.85, 10]} />
-          <meshStandardMaterial color={color} />
+          <meshStandardMaterial {...matProps} />
         </mesh>
       </group>
       <group ref={armR} position={[0.38, 1.25, 0]}>
-        <mesh position={[0, -0.42, 0]}>
+        <mesh position={[0, -0.42, 0]} castShadow>
           <cylinderGeometry args={[0.065, 0.065, 0.85, 10]} />
-          <meshStandardMaterial color={color} />
+          <meshStandardMaterial {...matProps} />
         </mesh>
       </group>
       <group ref={legL} position={[-0.2, 0.55, 0]}>
-        <mesh position={[0, -0.48, 0]}>
+        <mesh position={[0, -0.48, 0]} castShadow>
           <cylinderGeometry args={[0.08, 0.08, 1.1, 10]} />
-          <meshStandardMaterial color={color} />
+          <meshStandardMaterial {...matProps} />
         </mesh>
       </group>
       <group ref={legR} position={[0.2, 0.55, 0]}>
-        <mesh position={[0, -0.48, 0]}>
+        <mesh position={[0, -0.48, 0]} castShadow>
           <cylinderGeometry args={[0.08, 0.08, 1.1, 10]} />
-          <meshStandardMaterial color={color} />
+          <meshStandardMaterial {...matProps} />
         </mesh>
       </group>
     </group>
@@ -123,7 +127,7 @@ function Arena({ level }) {
     <>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[30, 30]} />
-        <meshStandardMaterial color={isBossLevel ? '#24151c' : '#172033'} />
+        <meshStandardMaterial color={isBossLevel ? '#1a0e14' : '#0d1526'} />
       </mesh>
       <gridHelper
         args={[30, 30, isBossLevel ? '#7f1d1d' : '#334155', isBossLevel ? '#451a1a' : '#1e293b']}
@@ -218,7 +222,7 @@ function Hud({ level, score, hp, stamina, combo }) {
         <span>NIVEAU {level} • SCORE {score}</span>
       </div>
       <div className="label">VIE {hp}%</div>
-      <div className="bar">
+      <div className={'bar ' + (hp <= 25 ? 'bar--danger' : '')}>
         <i style={{ width: hp + '%' }} />
       </div>
       <div className="label">ENDURANCE {stamina}%</div>
@@ -322,12 +326,16 @@ function Game() {
   const [gameOver, setGameOver] = useState(false);
   const [victory, setVictory] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageKind, setMessageKind] = useState('wave');
   const [attackMode, setAttackMode] = useState('punch');
   const [specialReady, setSpecialReady] = useState(true);
+  const [damageFlashId, setDamageFlashId] = useState(0);
 
   const spawn = (lv) => {
     enemies.current = spawnWave(lv);
-    setMessage(lv >= 3 ? 'BOSS !' : 'Vague ' + lv);
+    const isBoss = lv >= 3;
+    setMessageKind(isBoss ? 'boss' : 'wave');
+    setMessage(isBoss ? 'BOSS !' : 'Vague ' + lv);
     setTimeout(() => setMessage(''), 900);
   };
 
@@ -496,6 +504,7 @@ function Game() {
             return n;
           });
           setCombo(0);
+          setDamageFlashId((id) => id + 1);
         }
       }
 
@@ -546,16 +555,27 @@ function Game() {
   };
 
   const aliveEnemies = enemies.current.filter((e) => e.hp > 0);
+  const isBossLevel = level >= 3;
 
   return (
     <div className="game">
       <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 4.4, 7.1], fov: 55 }}>
-        <color attach="background" args={['#080d18']} />
-        <ambientLight intensity={1.2} />
-        <directionalLight position={[5, 9, 4]} intensity={3.2} castShadow />
+        <color attach="background" args={[isBossLevel ? '#0d0509' : '#05070d']} />
+        <fog attach="fog" args={[isBossLevel ? '#1a0e14' : '#05070d', 9, 23]} />
+        <ambientLight intensity={1.1} />
+        <directionalLight position={[5, 9, 4]} intensity={3} castShadow />
         <pointLight position={[-5, 3, 1]} intensity={18} distance={12} />
-        <pointLight position={[5, 2, -4]} intensity={14} distance={10} color="#7c3aed" />
+        <pointLight
+          position={[5, 2, -4]}
+          intensity={isBossLevel ? 20 : 14}
+          distance={10}
+          color={isBossLevel ? '#a855f7' : '#7c3aed'}
+        />
         <Arena level={level} />
+        <ContactShadows position={[0, 0.01, 0]} opacity={0.55} scale={20} blur={2.2} far={4} />
+        {isBossLevel && (
+          <Sparkles count={40} scale={[9, 4, 9]} size={2.5} speed={0.25} color="#c084fc" />
+        )}
         <Fighter
           fighter={player}
           isPlayer
@@ -597,12 +617,16 @@ function Game() {
         {paused ? '▶' : 'Ⅱ'}
       </button>
 
-      {message && <div className="message">{message}</div>}
+      {damageFlashId > 0 && <div key={damageFlashId} className="damage-flash" />}
+
+      {message && <div className={'message message--' + messageKind}>{message}</div>}
 
       {(gameOver || victory) && (
-        <div className="win">
-          {victory ? '🏆 VICTOIRE !' : '💀 KO'}
-          <div>{victory ? 'Les 3 niveaux sont terminés.' : 'Le combat est terminé.'}</div>
+        <div className={'win ' + (victory ? 'win--victory' : 'win--defeat')}>
+          <div className="headline">{victory ? '🏆 VICTOIRE !' : '💀 KO'}</div>
+          <div className="subline">
+            {victory ? 'Les 3 niveaux sont terminés.' : 'Le combat est terminé.'}
+          </div>
           <button onClick={() => location.reload()}>Rejouer</button>
         </div>
       )}
