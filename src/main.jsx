@@ -10,7 +10,7 @@ import './styles.css';
 // so the game runs at the same speed regardless of actual frame rate).
 // ---------------------------------------------------------------------------
 const TICK_MS = 16.6667; // reference frame duration (~60fps)
-const ARENA_BOUNDS = { xMin: -7, xMax: 7, zMin: -6, zMax: 7 };
+const ARENA_BOUNDS = { xMin: -11, xMax: 11, zMin: -9, zMax: 11 };
 
 const PLAYER = {
   moveSpeed: 0.105,
@@ -126,26 +126,26 @@ function Arena({ level }) {
   return (
     <>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[30, 30]} />
+        <planeGeometry args={[44, 44]} />
         <meshStandardMaterial color={isBossLevel ? '#1a0e14' : '#0d1526'} />
       </mesh>
       <gridHelper
-        args={[30, 30, isBossLevel ? '#7f1d1d' : '#334155', isBossLevel ? '#451a1a' : '#1e293b']}
+        args={[44, 44, isBossLevel ? '#7f1d1d' : '#334155', isBossLevel ? '#451a1a' : '#1e293b']}
       />
-      <mesh position={[0, 2, -8]}>
-        <boxGeometry args={[16, 4, 0.4]} />
+      <mesh position={[0, 2.5, -13]}>
+        <boxGeometry args={[26, 5, 0.4]} />
         <meshStandardMaterial color="#111827" />
       </mesh>
-      <mesh position={[-8, 2, 0]}>
-        <boxGeometry args={[0.35, 4, 16]} />
+      <mesh position={[-13, 2.5, 0]}>
+        <boxGeometry args={[0.35, 5, 26]} />
         <meshStandardMaterial color="#111827" />
       </mesh>
-      <mesh position={[8, 2, 0]}>
-        <boxGeometry args={[0.35, 4, 16]} />
+      <mesh position={[13, 2.5, 0]}>
+        <boxGeometry args={[0.35, 5, 26]} />
         <meshStandardMaterial color="#111827" />
       </mesh>
-      <mesh position={[0, 0.05, -3]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[2.8, 48]} />
+      <mesh position={[0, 0.05, -4]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[4, 48]} />
         <meshStandardMaterial
           color={isBossLevel ? '#4c1d95' : '#1e3a5f'}
           emissive={isBossLevel ? '#7c3aed' : '#0ea5e9'}
@@ -159,7 +159,7 @@ function Arena({ level }) {
 function CameraRig({ player }) {
   useFrame(({ camera }) => {
     const lookTarget = new THREE.Vector3(player.current.x, 1, player.current.z);
-    const desiredPos = new THREE.Vector3(player.current.x, 4.4, player.current.z + 7.1);
+    const desiredPos = new THREE.Vector3(player.current.x, 6.5, player.current.z + 10.5);
     camera.position.lerp(desiredPos, 0.08);
     camera.lookAt(lookTarget);
   });
@@ -559,9 +559,9 @@ function Game() {
 
   return (
     <div className="game">
-      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 4.4, 7.1], fov: 55 }}>
+      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 6.5, 10.5], fov: 50 }}>
         <color attach="background" args={[isBossLevel ? '#0d0509' : '#05070d']} />
-        <fog attach="fog" args={[isBossLevel ? '#1a0e14' : '#05070d', 9, 23]} />
+        <fog attach="fog" args={[isBossLevel ? '#1a0e14' : '#05070d', 13, 34]} />
         <ambientLight intensity={1.1} />
         <directionalLight position={[5, 9, 4]} intensity={3} castShadow />
         <pointLight position={[-5, 3, 1]} intensity={18} distance={12} />
@@ -572,9 +572,9 @@ function Game() {
           color={isBossLevel ? '#a855f7' : '#7c3aed'}
         />
         <Arena level={level} />
-        <ContactShadows position={[0, 0.01, 0]} opacity={0.55} scale={20} blur={2.2} far={4} />
+        <ContactShadows position={[0, 0.01, 0]} opacity={0.55} scale={30} blur={2.2} far={4} />
         {isBossLevel && (
-          <Sparkles count={40} scale={[9, 4, 9]} size={2.5} speed={0.25} color="#c084fc" />
+          <Sparkles count={55} scale={[13, 4, 13]} size={2.5} speed={0.25} color="#c084fc" />
         )}
         <Fighter
           fighter={player}
