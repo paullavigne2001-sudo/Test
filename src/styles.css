@@ -1,1 +1,466 @@
-*{box-sizing:border-box}html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,sans-serif;background:#080d18}.game{width:100%;height:100%;position:relative;touch-action:none}.hud{position:absolute;top:0;left:0;right:0;padding:14px 20px;color:white;pointer-events:none}.hud>div:first-child{display:flex;justify-content:space-between;align-items:center;font-size:18px}.hud b{letter-spacing:2px}.label{font-size:10px;opacity:.6;margin-top:5px}.bar{height:7px;background:#374151;border-radius:10px;margin:4px 0;overflow:hidden}.bar i{display:block;height:100%;background:#22c55e;border-radius:10px;transition:width .15s}.enemybar i{background:#ef4444}.controls{position:absolute;left:0;right:0;bottom:25px;height:125px;pointer-events:none}.joystick{position:absolute;left:25px;bottom:0;width:110px;height:110px;border:2px solid #fff3;border-radius:50%;background:#ffffff12;touch-action:none;pointer-events:auto}.knob{width:48px;height:48px;border-radius:50%;background:#ffffff55;position:absolute;left:29px;top:29px;pointer-events:none}.attack,.dodge{position:absolute;border:2px solid #fff4;color:white;border-radius:50%;pointer-events:auto;box-shadow:0 6px 18px #0006}.attack{right:20px;bottom:0;width:78px;height:78px;background:#ef4444;font-size:32px}.attack.active{transform:scale(.88)}.dodge{right:112px;bottom:6px;width:55px;height:55px;background:#334155;font-size:25px}.hint{position:absolute;bottom:7px;left:0;right:0;text-align:center;color:#fff8;font-size:11px;pointer-events:none}.pause{position:absolute;right:15px;top:115px;width:40px;height:40px;border:1px solid #fff4;border-radius:10px;background:#111827cc;color:white;font-size:17px}.win{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-size:32px;font-weight:800;background:#000a;gap:10px;text-align:center}.win div{font-size:16px;font-weight:500;opacity:.8}.win button{margin-top:8px;padding:12px 28px;border:0;border-radius:12px;font-weight:700}@media(max-width:600px){.hud{padding:12px 14px}.hud>div:first-child{font-size:16px}.hint{display:none}}.stage{margin-top:6px;font-size:11px;font-weight:800;letter-spacing:1px;text-align:center;opacity:.85}.stamina i{background:#38bdf8}.combo{margin-top:7px;text-align:center;font-size:22px;font-weight:900;text-shadow:0 2px 10px #000}.message{position:absolute;top:43%;left:0;right:0;text-align:center;color:white;font-size:34px;font-weight:900;letter-spacing:2px;text-shadow:0 3px 15px #000;pointer-events:none;animation:pop .9s ease-out}@keyframes pop{0%{transform:scale(.6);opacity:0}25%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:0}}.mode,.special{position:absolute;bottom:6px;width:48px;height:48px;border:2px solid #fff4;border-radius:50%;background:#334155;color:white;font-size:21px;pointer-events:auto}.mode{right:200px}.special{right:250px;background:#7c3aed}.mode.selected{background:#f59e0b}.special.cooldown{opacity:.35;filter:grayscale(1)}
+/* -----------------------------------------------------------------------
+   Design tokens
+   ----------------------------------------------------------------------- */
+:root {
+  --void: #05070d;
+  --dojo: #0d1526;
+  --ember: #1a0e14;
+  --panel: #0b1220cc;
+  --panel-border: #ffffff14;
+
+  --cyan: #38bdf8;
+  --violet: #a855f7;
+  --crimson: #ef4444;
+  --amber: #f59e0b;
+  --green: #22c55e;
+  --bone: #f8fafc;
+  --ink-dim: #ffffff99;
+
+  --font-display: 'Anton', 'Arial Narrow', system-ui, sans-serif;
+  --font-ui: 'Barlow Condensed', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  background: var(--void);
+  color: var(--bone);
+}
+
+.game {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  touch-action: none;
+}
+
+/* -----------------------------------------------------------------------
+   HUD
+   ----------------------------------------------------------------------- */
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px 14px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #05070dcc 0%, #05070d55 70%, transparent 100%);
+}
+
+.hud .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.hud .top b {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--bone);
+  text-shadow: 0 0 14px #38bdf866;
+}
+
+.hud .top span {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.4px;
+  color: var(--ink-dim);
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  opacity: 0.65;
+  margin-top: 6px;
+}
+
+.bar {
+  height: 8px;
+  background: #ffffff14;
+  border: 1px solid #ffffff1a;
+  border-radius: 10px;
+  margin: 3px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #16a34a, var(--green));
+  box-shadow: 0 0 10px #22c55e88;
+  transition: width 0.15s ease-out;
+}
+
+.bar.stamina i {
+  background: linear-gradient(90deg, #0284c7, var(--cyan));
+  box-shadow: 0 0 10px #38bdf888;
+}
+
+.bar.bar--danger i {
+  background: linear-gradient(90deg, #b91c1c, var(--crimson));
+  box-shadow: 0 0 12px #ef444499;
+  animation: pulse-danger 0.7s ease-in-out infinite;
+}
+
+@keyframes pulse-danger {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.4);
+  }
+}
+
+.enemybar i {
+  background: var(--crimson);
+}
+
+.stage {
+  margin-top: 8px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.combo {
+  margin-top: 8px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--amber);
+  text-shadow: 0 0 16px #f59e0b99, 0 2px 8px #000;
+  animation: combo-pop 0.25s ease-out;
+}
+
+@keyframes combo-pop {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* -----------------------------------------------------------------------
+   Damage flash (full-screen vignette when the player is hit)
+   ----------------------------------------------------------------------- */
+.damage-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, #ef444455 100%);
+  animation: flash-out 0.4s ease-out forwards;
+}
+
+@keyframes flash-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* -----------------------------------------------------------------------
+   Controls
+   ----------------------------------------------------------------------- */
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 25px;
+  height: 125px;
+  pointer-events: none;
+}
+
+.joystick {
+  position: absolute;
+  left: 25px;
+  bottom: 0;
+  width: 110px;
+  height: 110px;
+  border: 2px solid #ffffff2a;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff14, #ffffff08 70%);
+  box-shadow: inset 0 2px 10px #00000066, 0 0 0 1px #ffffff08;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+.knob {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffffb0, #ffffff55 75%);
+  box-shadow: 0 3px 10px #0006;
+  position: absolute;
+  left: 29px;
+  top: 29px;
+  pointer-events: none;
+}
+
+.attack,
+.dodge,
+.mode,
+.special {
+  border: none;
+  color: var(--bone);
+  border-radius: 50%;
+  pointer-events: auto;
+  font-family: var(--font-ui);
+  transition: transform 0.08s ease-out, filter 0.15s ease-out;
+}
+
+.attack:active,
+.dodge:active,
+.mode:active,
+.special:active {
+  transform: scale(0.88);
+}
+
+.attack {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  width: 78px;
+  height: 78px;
+  font-size: 32px;
+  background: radial-gradient(circle at 32% 28%, #f87171, var(--crimson) 65%, #b91c1c 100%);
+  box-shadow: 0 6px 18px #ef444455, inset 0 2px 4px #ffffff55, inset 0 -6px 10px #00000033;
+}
+
+.attack.active {
+  transform: scale(0.88);
+  filter: brightness(1.15);
+}
+
+.dodge {
+  right: 112px;
+  bottom: 6px;
+  width: 55px;
+  height: 55px;
+  font-size: 24px;
+  background: radial-gradient(circle at 32% 28%, #94a3b8, #334155 65%, #1e293b 100%);
+  box-shadow: 0 5px 14px #0006, inset 0 2px 4px #ffffff33;
+}
+
+.mode,
+.special {
+  position: absolute;
+  bottom: 6px;
+  width: 48px;
+  height: 48px;
+  font-size: 20px;
+  background: radial-gradient(circle at 32% 28%, #64748b, #334155 65%, #1e293b 100%);
+  box-shadow: 0 4px 12px #0006, inset 0 2px 4px #ffffff2a;
+}
+
+.mode {
+  right: 200px;
+}
+
+.mode.selected {
+  background: radial-gradient(circle at 32% 28%, #fbbf24, var(--amber) 65%, #b45309 100%);
+  box-shadow: 0 0 16px #f59e0b88, inset 0 2px 4px #ffffff55;
+}
+
+.special {
+  right: 250px;
+  background: radial-gradient(circle at 32% 28%, #c084fc, var(--violet) 65%, #6b21a8 100%);
+  box-shadow: 0 0 14px #a855f766, inset 0 2px 4px #ffffff40;
+  animation: special-idle 2s ease-in-out infinite;
+}
+
+@keyframes special-idle {
+  0%,
+  100% {
+    box-shadow: 0 0 14px #a855f766, inset 0 2px 4px #ffffff40;
+  }
+  50% {
+    box-shadow: 0 0 22px #a855f7aa, inset 0 2px 4px #ffffff40;
+  }
+}
+
+.special.cooldown {
+  animation: none;
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.hint {
+  position: absolute;
+  bottom: 7px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #ffffff88;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+
+.pause {
+  position: absolute;
+  right: 15px;
+  top: 115px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ffffff2a;
+  border-radius: 10px;
+  background: #0b1220cc;
+  backdrop-filter: blur(4px);
+  color: var(--bone);
+  font-size: 16px;
+}
+
+/* -----------------------------------------------------------------------
+   Wave / boss announcement text
+   ----------------------------------------------------------------------- */
+.message {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 38px;
+  letter-spacing: 3px;
+  color: var(--bone);
+  text-shadow: 0 0 24px currentColor, 0 3px 12px #000;
+  pointer-events: none;
+  animation: pop 0.9s ease-out;
+}
+
+.message--boss {
+  color: var(--crimson);
+}
+
+.message--wave {
+  color: var(--cyan);
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* -----------------------------------------------------------------------
+   Victory / defeat screen
+   ----------------------------------------------------------------------- */
+.win {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 40%, #ffffff10, #000000e6 75%);
+  animation: fade-in 0.4s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.win .headline {
+  font-family: var(--font-display);
+  font-size: 42px;
+  letter-spacing: 2px;
+  font-weight: 400;
+}
+
+.win--victory .headline {
+  color: var(--amber);
+  text-shadow: 0 0 30px #f59e0baa;
+}
+
+.win--defeat .headline {
+  color: var(--crimson);
+  text-shadow: 0 0 30px #ef4444aa;
+}
+
+.win .subline {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+.win button {
+  margin-top: 8px;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: #0b1220;
+  background: linear-gradient(180deg, #fde68a, var(--amber));
+  box-shadow: 0 6px 20px #f59e0b55;
+}
+
+/* -----------------------------------------------------------------------
+   Responsive
+   ----------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .hud {
+    padding: 10px 12px 12px;
+  }
+  .hud .top b {
+    font-size: 16px;
+  }
+  .hint {
+    display: none;
+  }
+  .message {
+    font-size: 30px;
+  }
+  .win .headline {
+    font-size: 32px;
+  }
+}
